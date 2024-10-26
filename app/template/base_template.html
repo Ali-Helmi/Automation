@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inverse Design Application</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Inverse Design Platform</h1>
+    </header>
+
+    <main>
+        <section id="input-section">
+            <h2>Input Desired Output</h2>
+            <form id="design-form" method="post">
+                <label for="target-output">Target Output Behavior:</label>
+                <input type="text" id="target-output" name="target_output" required>
+                <button type="submit">Generate Design</button>
+            </form>
+        </section>
+
+        <section id="output-section">
+            <h2>Suggested Design Parameters</h2>
+            <div id="design-results">
+                <!-- Design suggestions will be displayed here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Inverse Design App</p>
+    </footer>
+</body>
+</html>
