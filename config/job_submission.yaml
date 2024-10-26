@@ -1,0 +1,41 @@
+# Job Submission Configuration File
+# Purpose: Define settings related to job submission on the supercomputer cluster
+# This file centralizes parameters such as job queue, node configuration, and script templates
+
+# Job Queue and Cluster Details
+cluster:
+  job_queue: "priority"        # Specify the job queue (e.g., 'default', 'priority')
+  node_count: 2                # Number of compute nodes to use
+  tasks_per_node: 24           # Number of tasks (cores) per node
+  wall_time: "02:00:00"        # Maximum time allowed for each job (HH:MM:SS)
+
+# Job Submission Scripts
+submission_script:
+  type: "slurm"                # Specify the scheduler type (e.g., 'slurm', 'pbs')
+  template_file: "job_templates/slurm_template.sh"  # Template script path
+
+# Environment Settings
+environment:
+  load_modules:
+    - "module load anaconda/3"
+    - "module load hfss/2024"
+  activate_env: "source metasurface_env/bin/activate"  # Command to activate the virtual environment
+
+# Output and Logging
+output:
+  log_directory: "./logs"      # Directory to store job logs
+  job_output: "output_%j.log"  # Output file pattern (%j replaced by job ID)
+  error_output: "error_%j.log" # Error file pattern (%j replaced by job ID)
+
+# Retry and Monitoring Options
+retry_settings:
+  max_retries: 3               # Maximum number of retries for failed jobs
+  retry_interval: 600          # Time between retries (in seconds)
+
+# Advanced Configuration (Optional)
+advanced:
+  memory_per_task: "2GB"       # Memory allocation per task (e.g., '2GB', '4GB')
+  gpu_usage: false             # Enable GPU usage (true/false)
+  extra_options:               # Additional scheduler options
+    - "--exclusive"
+    - "--constraint=highmem"

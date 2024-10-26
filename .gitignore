@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment directories
+venv/
+metasurface_env/
+env/
+
+# Packages
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Configuration files
+config/*.yaml.bak
+
+# Simulation output files
+simulation_outputs/
+*.aedt.lock
+*.aedtresults/
+
+# Data and datasets
+*.csv
+*.h5
+*.json
+
+# System files
+.DS_Store
+Thumbs.db
+
+# SSH and key files
+*.pem
+*.key
+
+# IDE-specific settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

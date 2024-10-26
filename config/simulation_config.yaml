@@ -1,0 +1,48 @@
+# Simulation Configuration File
+# Purpose: Define parameters like frequency ranges, boundary conditions, and material properties
+# These settings will be read by the design generation and job submission scripts to ensure consistent and accurate simulation setups.
+
+# Frequency Settings
+frequency:
+  start: 1e9        # Start frequency in Hz (e.g., 1 GHz)
+  stop: 10e9        # Stop frequency in Hz (e.g., 10 GHz)
+  step: 1e8         # Step size in Hz (e.g., 100 MHz)
+
+# Simulation Parameters
+simulation:
+  solver_type: "HFSS"  # Type of solver (e.g., HFSS, Circuit, Max)
+  boundary_conditions:
+    - "Perfect E"
+    - "Perfect H"
+    - "Floquet Periodic"  # Specify boundary condition types
+  mesh_density: "medium"  # Options: low, medium, high
+
+# Material Properties
+materials:
+  substrate:
+    name: "FR4"
+    relative_permittivity: 4.4
+    loss_tangent: 0.02
+    thickness: 1.6e-3  # Thickness in meters
+  metal_layer:
+    conductivity: 5.8e7  # Conductivity in S/m (e.g., copper)
+
+# Simulation Setup Options
+setup:
+  excitation:
+    type: "Plane Wave"
+    angle_of_incidence: 0  # Degrees, adjust for oblique incidences
+  port_count: 2  # Number of ports
+  s_parameter: true  # Toggle S-parameter extraction
+
+# Mesh Settings
+mesh:
+  max_elements: 1000000   # Maximum mesh elements
+  refinement: true        # Enable mesh refinement
+  refinement_levels: 2    # Number of refinement levels
+
+# Output Settings
+output:
+  results_directory: "./simulation_outputs"
+  save_format: "aedtresults"  # Options: aedtresults, csv, hdf5
+  export_fields: true         # Export field data (true/false)
