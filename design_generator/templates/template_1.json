@@ -1,0 +1,29 @@
+{
+    "frequency": 5e9,
+    "dimensions": {
+      "width": 0.03,
+      "height": 0.03,
+      "thickness": 0.0016
+    },
+    "material": {
+      "substrate": {
+        "type": "FR4",
+        "relative_permittivity": 4.4,
+        "loss_tangent": 0.02
+      },
+      "metal_layer": "Copper"
+    },
+    "pattern": {
+      "type": "patch",
+      "geometry": "square",
+      "spacing": 0.002,
+      "alignment": "center"
+    },
+    "boundary_conditions": "Floquet Periodic",
+    "port_count": 2,
+    "excitation": {
+      "type": "Plane Wave",
+      "angle_of_incidence": 0
+    }
+  }
+  
