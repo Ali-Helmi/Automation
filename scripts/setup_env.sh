@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script: setup_env.sh
+# Script: scripts/setup_env.sh
 # Purpose: Automate the setup of the development environment for Metasurface Design Automation
 
 echo "Starting environment setup..."

@@ -5,6 +5,7 @@ import pandas as pd
 import logging
 from pathlib import Path
 import glob
+from concurrent.futures import ThreadPoolExecutor
 
 logging.basicConfig(level=logging.INFO)
 
@@ -43,11 +44,19 @@ def parse_directory(directory_path):
     #    data = parse_simulation_output(file_path)
     #    all_data = pd.concat([all_data, data], ignore_index=True)
     
-    for file in os.listdir(directory_path):
-        file_path = os.path.join(directory_path, file)
-        if os.path.isfile(file_path) and file.endswith('.csv'):  # Assume CSV format
-            data = parse_simulation_output(file_path)
+    # for file in os.listdir(directory_path):
+    #     file_path = os.path.join(directory_path, file)
+    #     if os.path.isfile(file_path) and file.endswith('.csv'):  # Assume CSV format
+    #         data = parse_simulation_output(file_path)
+    #         all_data = pd.concat([all_data, data], ignore_index=True)
+    
+    files = [os.path.join(directory_path, f) for f in os.listdir(directory_path) if f.endswith('.csv')]
+
+    with ThreadPoolExecutor() as executor:
+        results = executor.map(parse_simulation_output, files)
+        for data in results:
             all_data = pd.concat([all_data, data], ignore_index=True)
+
     
     logging.info(f"Aggregated data from {len(all_data)} entries.")
     return all_data

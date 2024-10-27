@@ -97,6 +97,9 @@ def submit_job(script_path):
     except subprocess.CalledProcessError as e:
         print(f"Error submitting job: {e.stderr.strip()}")
         return None
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return None
 
 def batch_submit_jobs(config_path, design_files):
     """

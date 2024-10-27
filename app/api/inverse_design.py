@@ -1,5 +1,5 @@
 #app/api/inverse_design.py
-
+    
 from machine_learning.models.cnn_model import CNNModel
 from data_processor.aggregator import DataAggregator
 from data_processor.validator import DataValidator

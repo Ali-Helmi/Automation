@@ -34,7 +34,13 @@ def parse_args():
         "--target_behavior", type=str, required=True,
         help="Specify desired electromagnetic properties for the design."
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # Validate input
+    if not args.target_behavior.isalnum():
+        raise ValueError("Target behavior must be an alphanumeric string.")
+    
+    return args
 
 if __name__ == "__main__":
     args = parse_args()

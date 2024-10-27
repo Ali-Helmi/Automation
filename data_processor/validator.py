@@ -2,11 +2,11 @@
 
 import pandas as pd
 import logging
-#import yaml
+import yaml
 
 # Load validation ranges from config
-#with open('config/validation_settings.yaml', 'r') as f:
-#    validation_config = yaml.safe_load(f)
+with open('config/validation_settings.yaml', 'r') as f:
+    validation_config = yaml.safe_load(f)
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,11 +27,13 @@ def validate_data(data: pd.DataFrame) -> bool:
             return False
         
         # Check for specific column data types and ranges
-        expected_columns = {
-            "frequency": (float, (1e9, 1e12)),  # Hz range, adjust as necessary
-            "gain": (float, (-50, 50)),        # dB range, adjust as necessary
-            "efficiency": (float, (0, 1))      # Efficiency in range [0,1]
-        }
+        # expected_columns = {
+        #     "frequency": (float, (1e9, 1e12)),  # Hz range, adjust as necessary
+        #     "gain": (float, (-50, 50)),        # dB range, adjust as necessary
+        #     "efficiency": (float, (0, 1))      # Efficiency in range [0,1]
+        # }
+        
+        expected_columns = validation_config["expected_columns"]
         
         for column, (dtype, valid_range) in expected_columns.items():
             if column not in data.columns:

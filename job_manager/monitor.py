@@ -4,6 +4,7 @@ import subprocess
 import time
 import os
 import yaml
+import asyncio
 
 # Load configurations
 with open("config/job_submission.yaml", "r") as f:
@@ -37,12 +38,28 @@ def monitor_jobs(job_list):
             print(f"Job {job_id} failed or stopped. Attempting to resubmit.")
             resubmit_job(job_script)
 
+async def monitor_jobs_async(job_list):
+    """Monitor a list of job IDs asynchronously."""
+    while True:
+        for job_script, job_id in job_list:
+            try:
+                status = await asyncio.create_subprocess_shell(f"squeue -j {job_id}", stdout=subprocess.PIPE)
+                output, _ = await status.communicate()
+                if "RUNNING" not in output.decode():
+                    print(f"Job {job_id} is no longer running. Resubmitting...")
+                    await asyncio.create_subprocess_shell(f"sbatch {job_script}")
+            except Exception as e:
+                print(f"Error monitoring job {job_id}: {e}")
+        await asyncio.sleep(CHECK_INTERVAL)
+
 def main():
     # Load job details from a file or API
     job_list = [
         # Example job entries
         ("job_manager/job_templates/slurm_template.sh", "12345"),
     ]
+    
+    #asyncio.run(monitor_jobs_async(job_list))
 
     while True:
         monitor_jobs(job_list)

@@ -3,7 +3,7 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-def build_cnn_model(input_shape=(128, 128, 1), num_classes=10):
+def build_cnn_model(input_shape=(128, 128, 1), num_classes=10, conv_layers=[32, 64, 128], dense_units=128):
     """
     Builds and compiles a CNN model for image-based design prediction.
 
@@ -14,17 +14,27 @@ def build_cnn_model(input_shape=(128, 128, 1), num_classes=10):
     Returns:
     - model: A compiled CNN model.
     """
-    model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(128, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Flatten(),
-        layers.Dense(128, activation='relu'),
-        layers.Dense(num_classes, activation='softmax')
-    ])
+    # model = models.Sequential([
+    #     layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
+    #     layers.MaxPooling2D((2, 2)),
+    #     layers.Conv2D(64, (3, 3), activation='relu'),
+    #     layers.MaxPooling2D((2, 2)),
+    #     layers.Conv2D(128, (3, 3), activation='relu'),
+    #     layers.MaxPooling2D((2, 2)),
+    #     layers.Flatten(),
+    #     layers.Dense(128, activation='relu'),
+    #     layers.Dense(num_classes, activation='softmax')
+    # ])
+    
+    model = models.Sequential()
+    model.add(layers.Conv2D(conv_layers[0], (3, 3), activation='relu', input_shape=input_shape))
+    model.add(layers.MaxPooling2D((2, 2)))
+    for filters in conv_layers[1:]:
+        model.add(layers.Conv2D(filters, (3, 3), activation='relu'))
+        model.add(layers.MaxPooling2D((2, 2)))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(dense_units, activation='relu'))
+    model.add(layers.Dense(num_classes, activation='softmax'))
 
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy',
