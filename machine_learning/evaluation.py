@@ -5,7 +5,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def evaluate_model(model, test_data, test_labels):
+def evaluate_model(model, test_data, test_labels, batch_size=32):
     """
     Evaluates the trained model on test data and returns accuracy, confusion matrix, and classification report.
 
@@ -19,7 +19,7 @@ def evaluate_model(model, test_data, test_labels):
     - conf_matrix: Confusion matrix for predictions.
     - report: Classification report with precision, recall, f1-score.
     """
-    predictions = model.predict(test_data).argmax(axis=1)
+    predictions = model.predict(test_data, batch_size=batch_size).argmax(axis=1)
     true_labels = test_labels.argmax(axis=1)
     
     accuracy = accuracy_score(true_labels, predictions)
@@ -30,6 +30,8 @@ def evaluate_model(model, test_data, test_labels):
     print("Classification Report:\n", report)
     
     return accuracy, conf_matrix, report
+    
+    
 
 def plot_confusion_matrix(conf_matrix, class_names):
     """

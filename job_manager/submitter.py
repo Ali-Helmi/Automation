@@ -4,6 +4,7 @@
 import os
 import subprocess
 import yaml
+from pathlib import Path
 
 def load_config(config_path):
     """
@@ -15,6 +16,14 @@ def load_config(config_path):
     Returns:
         dict: Configuration parameters.
     """
+    config_path = Path(config_path)
+    if not config_path.exists():
+        print(f"Configuration file {config_path} not found.")
+        return {}
+    
+    #with config_path.open('r') as file:
+    #    return yaml.safe_load(file)
+    
     with open(config_path, 'r') as file:
         config = yaml.safe_load(file)
     return config
@@ -31,25 +40,45 @@ def create_submission_script(config, job_name, design_file):
     Returns:
         str: Path to the generated job script.
     """
-    script_template = config.get('script_template', 'job_manager/job_templates/slurm_template.sh')
-    job_script = f"{job_name}.sh"
+    # script_template = config.get('script_template', 'job_manager/job_templates/slurm_template.sh')
+    # job_script = f"{job_name}.sh"
     
-    with open(script_template, 'r') as template:
-        script_content = template.read()
+    # with open(script_template, 'r') as template:
+    #     script_content = template.read()
 
-    # Replace placeholders in the template
-    script_content = script_content.replace("{job_name}", job_name)
-    script_content = script_content.replace("{design_file}", design_file)
-    script_content = script_content.replace("{nodes}", str(config['nodes']))
-    script_content = script_content.replace("{tasks_per_node}", str(config['tasks_per_node']))
-    script_content = script_content.replace("{walltime}", config['walltime'])
+    # # Replace placeholders in the template
+    # script_content = script_content.replace("{job_name}", job_name)
+    # script_content = script_content.replace("{design_file}", design_file)
+    # script_content = script_content.replace("{nodes}", str(config['nodes']))
+    # script_content = script_content.replace("{tasks_per_node}", str(config['tasks_per_node']))
+    # script_content = script_content.replace("{walltime}", config['walltime'])
     
-    # Write the filled script
-    with open(job_script, 'w') as file:
-        file.write(script_content)
+    # # Write the filled script
+    # with open(job_script, 'w') as file:
+    #     file.write(script_content)
     
-    print(f"Job script generated: {job_script}")
-    return job_script
+    # print(f"Job script generated: {job_script}")
+    # return job_script
+    
+    try:
+        nodes = str(config.get('nodes', 1))
+        tasks_per_node = str(config.get('tasks_per_node', 1))
+        walltime = config.get('walltime', '01:00:00')
+        template_file = Path(config.get('script_template', 'job_templates/slurm_template.sh'))
+
+        with template_file.open('r') as template:
+            script_content = template.read().replace("{job_name}", job_name) \
+                                            .replace("{design_file}", design_file) \
+                                            .replace("{nodes}", nodes) \
+                                            .replace("{tasks_per_node}", tasks_per_node) \
+                                            .replace("{walltime}", walltime)
+
+        job_script = Path(f"{job_name}.sh")
+        job_script.write_text(script_content)
+        print(f"Job script generated: {job_script}")
+        return job_script
+    except KeyError as e:
+        print(f"Configuration missing key: {e}")
 
 def submit_job(script_path):
     """

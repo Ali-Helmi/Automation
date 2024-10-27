@@ -26,6 +26,9 @@ def aggregate_data(parsed_data_files):
     except Exception as e:
         logging.error(f"Error during data aggregation: {e}")
         return pd.DataFrame()
+    except ValueError as ve:
+        logging.error(f"Aggregation error: {ve}")
+        return pd.DataFrame()
 
 def save_aggregated_data(aggregated_data, output_file):
     """

@@ -7,17 +7,24 @@ import random
 from pyaedt import Hfss
 from design_generator.utils import generate_geometry, save_design_file
 
+
 class DesignGenerator:
     def __init__(self, template_path, output_dir="./designs", randomize=False):
+        self.random_seed = 42  # Set for reproducible random designs; move to config for flexibility
+        random.seed(self.random_seed)
         self.template_path = template_path
         self.output_dir = output_dir
         self.randomize = randomize
         self.designs = []
 
     def load_template(self):
-        with open(self.template_path, 'r') as file:
-            template = json.load(file)
-        return template
+        try:
+            with open(self.template_path, 'r') as file:
+                template = json.load(file)
+            return template
+        except FileNotFoundError:
+            print(f"Error: Template file {self.template_path} not found.")
+            return {}
 
     def generate_designs(self, count=10):
         os.makedirs(self.output_dir, exist_ok=True)

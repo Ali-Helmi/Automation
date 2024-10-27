@@ -63,8 +63,10 @@ def save_design_file(hfss_app, file_path):
         hfss_app (Hfss): The HFSS application instance.
         file_path (str): Path to save the file.
     """
-    if not os.path.exists(os.path.dirname(file_path)):
-        os.makedirs(os.path.dirname(file_path))
-    hfss_app.save_project(file_path)
-    print(f"Project saved at {file_path}")
-
+    try:
+        if not os.path.exists(os.path.dirname(file_path)):
+            os.makedirs(os.path.dirname(file_path))
+        hfss_app.save_project(file_path)
+        print(f"Project saved at {file_path}")
+    except OSError as e:
+        print(f"Error saving file {file_path}: {e}")

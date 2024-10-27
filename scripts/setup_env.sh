@@ -13,18 +13,30 @@ fi
 
 # Step 2: Create Virtual Environment
 echo "Creating virtual environment..."
-python3 -m venv metasurface_env
+#python3 -m venv metasurface_env
+if ! python3 -m venv metasurface_env; then
+    echo "Failed to create virtual environment. Check Python installation."
+    exit 1
+fi
 
 # Step 3: Activate Virtual Environment
 source metasurface_env/bin/activate
 
 # Step 4: Upgrade pip
 echo "Upgrading pip..."
-pip install --upgrade pip
+#pip install --upgrade pip
+if ! pip install --upgrade pip; then
+    echo "Failed to upgrade pip."
+    exit 1
+fi
 
 # Step 5: Install Dependencies
 echo "Installing required packages..."
-pip install -r requirements.txt
+#pip install -r requirements.txt
+if ! pip install -r requirements.txt; then
+    echo "Dependency installation failed. Verify requirements file."
+    exit 1
+fi
 
 # Step 6: Check and Set Up Configuration Files
 CONFIG_DIR="config"

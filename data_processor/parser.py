@@ -3,6 +3,8 @@
 import os
 import pandas as pd
 import logging
+from pathlib import Path
+import glob
 
 logging.basicConfig(level=logging.INFO)
 
@@ -36,6 +38,10 @@ def parse_directory(directory_path):
     - DataFrame containing aggregated data
     """
     all_data = pd.DataFrame()
+    
+    #for file_path in Path(directory_path).glob("*.csv"):
+    #    data = parse_simulation_output(file_path)
+    #    all_data = pd.concat([all_data, data], ignore_index=True)
     
     for file in os.listdir(directory_path):
         file_path = os.path.join(directory_path, file)

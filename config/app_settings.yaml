@@ -1,0 +1,23 @@
+# General Application Configuration
+
+app:
+  logging_level: "INFO"            # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  max_designs: 100                 # Max designs generated in a single run
+
+paths:
+  output_directory: "./designs"    # Directory to save generated designs
+  log_directory: "./logs"          # Directory to save logs
+
+design_generator:
+  template: "design_generator/templates/template_1.json"
+  randomize: true
+
+job_manager:
+  retry_attempts: 3
+  retry_delay: 300                 # Retry delay in seconds
+
+machine_learning:
+  batch_size: 32
+  epochs: 20
+  validation_split: 0.2
+  test_split: 0.1

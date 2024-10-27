@@ -2,6 +2,11 @@
 
 import pandas as pd
 import logging
+#import yaml
+
+# Load validation ranges from config
+#with open('config/validation_settings.yaml', 'r') as f:
+#    validation_config = yaml.safe_load(f)
 
 logging.basicConfig(level=logging.INFO)
 
