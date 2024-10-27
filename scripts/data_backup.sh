@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script: data_backup.sh
+# Script: scripts/data_backup.sh
 # Purpose: This script automates the backup of simulation results and datasets to ensure data preservation.
 
 # Configuration

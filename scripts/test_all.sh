@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script: test_all.sh
+# Script: scripts/test_all.sh
 # Purpose: Start all unit tests for the automation program
 
 echo "Starting all unit tests..."
