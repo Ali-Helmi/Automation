@@ -42,27 +42,6 @@ class DesignGenerator:
             specified_version="2022.1",
             new_desktop_session=False
             )  # Create a new project
-        
-        # Assign parameters as in the example
-        self.hfss_app["cell_width"] = "2.5mm"
-        self.hfss_app["patch_outerWidth1"] = "2.2mm"
-        self.hfss_app["patch_outerWidth2"] = "1.5mm"
-        self.hfss_app["patch_innerWidth1"] = "1.8mm"
-        self.hfss_app["patch_innerWidth2"] = "1.1mm"
-        self.hfss_app["patch_gapLength"] = "0.3mm"
-        self.hfss_app["patch_gapWidth"] = "0.2mm"
-        self.hfss_app["substrate_height"] = "0.25mm"
-        self.hfss_app["wire_length"] = "2.5mm"
-        self.hfss_app["wire_width"] = "0.14mm"
-        self.hfss_app["rad_length"] = "2.51mm"
-        self.hfss_app["rad_width"] = "2.51mm"
-        self.hfss_app["rad_height"] = "2.51mm"
-        self.hfss_app["lower_frequency"] = "5GHz"
-        self.hfss_app["upper_frequency"] = "15GHz"
-        self.hfss_app["solution_frequency"] = "10GHz"
-        self.hfss_app["patch_thickness"] = "0.017mm"
-        self.hfss_app["wavelength"] = "29.97925mm"
-
 
 
     def generate_designs(self, count=10):
@@ -76,93 +55,16 @@ class DesignGenerator:
             
         self.cleanup_hfss()
 
-    # def create_random_design(self):
-    #     # Generate a randomized set of parameters for design
-    #     return {
-    #         "frequency": random.uniform(1e9, 10e9),   # Random frequency between 1 GHz and 10 GHz
-    #         "dimensions": {
-    #             "width": random.uniform(0.01, 0.05),  # Width in meters
-    #             "height": random.uniform(0.01, 0.05) # Height in meters
-    #         },
-    #         "material": random.choice(["FR4", "Rogers", "Copper"]),
-    #         "pattern": random.choice(["patch", "slot", "array"])
-    #     }
-    
-    
-    def load_config_ranges(self):
-        # Load the configuration ranges from a JSON file
-        try:
-            with open("templates/ranges_config.json", 'r') as file:
-                config = json.load(file)
-            return config
-        except FileNotFoundError:
-            print("Error: Configuration file not found.")
-            return {}
-    
     def create_random_design(self):
-        # Load the configuration ranges from a JSON file
-        config = self.load_config_ranges()
-
-        # Generate a randomized set of parameters for design based on the loaded config
+        # Generate a randomized set of parameters for design
         return {
-            "frequency": random.uniform(
-                config.get("frequency", {}).get("min", 1e9), 
-                config.get("frequency", {}).get("max", 10e9)
-            ),
+            "frequency": random.uniform(1e9, 10e9),   # Random frequency between 1 GHz and 10 GHz
             "dimensions": {
-                "width": random.uniform(
-                    config.get("dimensions", {}).get("width", {}).get("min", 0.01), 
-                    config.get("dimensions", {}).get("width", {}).get("max", 0.05)
-                ),
-                "height": random.uniform(
-                    config.get("dimensions", {}).get("height", {}).get("min", 0.01), 
-                    config.get("dimensions", {}).get("height", {}).get("max", 0.05)
-                ),
-                "thickness": random.uniform(
-                    config.get("dimensions", {}).get("thickness", {}).get("min", 0.001), 
-                    config.get("dimensions", {}).get("thickness", {}).get("max", 0.01)
-                )
+                "width": random.uniform(0.01, 0.05),  # Width in meters
+                "height": random.uniform(0.01, 0.05) # Height in meters
             },
-            "material": {
-                "substrate_material": random.choice(
-                    config.get("material", {}).get("substrate_material", ["FR4_epoxy", "Rogers"])
-                ),
-                "metal_material": config.get("material", {}).get("metal_material", "Copper"),
-                "radiation_material": config.get("material", {}).get("radiation_material", "vacuum")
-            },
-            "pattern": {
-                "type": random.choice(
-                    config.get("pattern", {}).get("type", ["patch", "slot"])
-                ),
-                "geometry": random.choice(
-                    config.get("pattern", {}).get("geometry", ["square", "circular"])
-                )
-            },
-            # Add frequency sweep if it exists in config
-            "frequency_sweep": config.get("frequency_sweep", {
-                "start": 5e9,
-                "stop": 15e9,
-                "points": 501
-            }),
-            # Add boundary conditions if it exists in config
-            "boundary_conditions": config.get("boundary_conditions", {
-                "type": "Floquet Periodic",
-                "excitation": {
-                    "type": "Plane Wave",
-                    "angle_of_incidence": 0
-                }
-            }),
-            # Static parameters with fallback defaults
-            "cell_width": config.get("cell_width", "2.5mm"),
-            "patch_thickness": config.get("patch_thickness", "0.017mm"),
-            "patch_gapLength": config.get("patch_gapLength", "0.3mm"),
-            "patch_gapWidth": config.get("patch_gapWidth", "0.2mm"),
-            "substrate_height": config.get("substrate_height", "0.25mm"),
-            "wire_length": config.get("wire_length", "2.5mm"),
-            "wire_width": config.get("wire_width", "0.14mm"),
-            "rad_length": config.get("rad_length", "2.51mm"),
-            "rad_width": config.get("rad_width", "2.51mm"),
-            "rad_height": config.get("rad_height", "2.51mm")
+            "material": random.choice(["FR4", "Rogers", "Copper"]),
+            "pattern": random.choice(["patch", "slot", "array"])
         }
         
 
@@ -171,17 +73,16 @@ class DesignGenerator:
             if not self.hfss_app:
                 raise RuntimeError("HFSS application is not initialized.")
 
-                
+
             project_name = f"metasurface_design_{index}"
             self.hfss_app.insert_design(project_name)
 
             # Generate geometry using utility function
             generate_geometry(self.hfss_app, params)
-            assign_ports_and_boundaries(self.hfss_app, params)
             
             # Save design file
             file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
-            save_design_file(self.hfss_app, file_path)
+            #save_design_file(self.hfss_app, file_path)
 
             #self.hfss_app.save_project(file_path)
             self.designs.append(file_path)
@@ -207,4 +108,4 @@ class DesignGenerator:
 
 if __name__ == "__main__":
     generator = DesignGenerator(template_path="templates/template_1.json", randomize=False)
-    generator.generate_designs(count=1)
+    generator.generate_designs(count=50)
