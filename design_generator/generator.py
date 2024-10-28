@@ -36,9 +36,12 @@ class DesignGenerator:
             self.desktop = Desktop("2022.1", non_graphical=False)
         
         if not self.hfss_app:
-            self.hfss_app = Hfss(specified_version="2022.1", new_desktop_session=False)  # Create the HFSS instance
-            self.hfss_app.create_project("Generated_Designs")
-            self.hfss_app.insert_design("HFSS_Design")  # Create a new project
+            self.hfss_app = Hfss(
+            projectname="Generated_Designs_Project",
+            designname="Generated_Design",
+            specified_version="2022.1",
+            new_desktop_session=False
+            )  # Create a new project
 
 
     def generate_designs(self, count=10):
