@@ -18,6 +18,7 @@ class DesignGenerator:
         self.output_dir = output_dir
         self.randomize = randomize
         self.designs = []
+        self.hfss_app = None
 
     def load_template(self):
         try:
@@ -27,8 +28,18 @@ class DesignGenerator:
         except FileNotFoundError:
             print(f"Error: Template file {self.template_path} not found.")
             return {}
+    
+    def initialize_hfss(self):
+        """Initialize the HFSS application and set up a new project."""
+        if not self.hfss_app:
+            self.hfss_app = Hfss()  # Create the HFSS instance
+            self.hfss_app.new_project("Generated_Designs")  # Create a new project
+
 
     def generate_designs(self, count=10):
+        # Ensure HFSS is initialized before creating designs
+        self.initialize_hfss()
+        
         os.makedirs(self.output_dir, exist_ok=True)
         for i in range(count):
             design_params = self.create_random_design() if self.randomize else self.load_template()
@@ -49,20 +60,23 @@ class DesignGenerator:
 
     def create_and_save_design(self, params, index):
         try:
-            with Hfss() as hfss_app:
-                project_name = f"metasurface_design_{index}"
-                self.hfss_app.new_design(project_name)
+            if not self.hfss_app:
+                raise RuntimeError("HFSS application is not initialized.")
 
-                # Generate geometry using utility function
-                generate_geometry(self.hfss_app, params)
-                
-                # Save design file
-                file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
-                save_design_file(self.hfss_app, file_path)
 
-                self.hfss_app.save_project()
-                self.designs.append(file_path)
-                logging.info(f"Design {index} saved to {file_path}")
+            project_name = f"metasurface_design_{index}"
+            self.hfss_app.new_design(project_name)
+
+            # Generate geometry using utility function
+            generate_geometry(self.hfss_app, params)
+            
+            # Save design file
+            file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
+            save_design_file(self.hfss_app, file_path)
+
+            self.hfss_app.save_project()
+            self.designs.append(file_path)
+            logging.info(f"Design {index} saved to {file_path}")
         except FileNotFoundError as e:
             logging.error(f"File not found: {e}")
         except Exception as e:
