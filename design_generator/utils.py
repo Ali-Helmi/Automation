@@ -5,25 +5,44 @@ import os
 from pyaedt import Hfss
 
 def generate_geometry(hfss_app, params):
-    """
-    Creates geometry in HFSS based on design parameters.
+    # Create substrate
+    substrate = hfss_app.modeler.create_box(
+        position=["-cell_width/2", "-cell_width/2", "-substrate_height/2"],
+        dimensions_list=["cell_width", "cell_width", "substrate_height"],
+        name="substrate",
+        matname=params["material"]["substrate"]["type"]
+    )
+
+    # Create Outer Patch 1
+    outer_patch1 = hfss_app.modeler.create_rectangle(
+        csPlane=hfss_app.PLANE.XY,
+        position=["-patch_outerWidth1/2", "-patch_outerWidth1/2", "substrate_height/2"],
+        dimension_list=["patch_outerWidth1", "patch_outerWidth1"],
+        name="outer_patch1",
+        matname="copper"
+    )
+    hfss_app.modeler.thicken_sheet(outer_patch1.name, thickness="patch_thickness")
+
+    # Create other patches, gaps, and wire as in the example...
     
-    Args:
-        hfss_app (Hfss): The HFSS application instance.
-        params (dict): Parameters including dimensions, material, and pattern.
-    """
-    design_name = "unit_cell"
-    hfss_app.modeler.create_box([0, 0, 0], 
-                                [params["dimensions"]["width"], 
-                                 params["dimensions"]["height"], 
-                                 params["dimensions"]["thickness"]], 
-                                name=design_name, material=params["material"]["metal_layer"])
-    
-    # Example geometry generation based on pattern type
-    if params["pattern"]["type"] == "patch":
-        create_patch_pattern(hfss_app, params)
-    elif params["pattern"]["type"] == "slot":
-        create_slot_pattern(hfss_app, params)
+    # Subtraction Operations
+    hfss_app.modeler.subtract(["outer_patch1"], ["inner_patch1", "patch_outerGap"], keep_originals=False)
+    hfss_app.modeler.subtract(["outer_patch2"], ["inner_patch2", "patch_innerGap"], keep_originals=False)
+
+    # Floquet Ports and Boundaries
+    hfss_app.create_floquet_port(
+        face=308,
+        lattice_origin=["-1.255mm", "1.255mm", "1.255mm"],
+        lattice_b_end=["-1.255mm", "-1.255mm", "1.255mm"],
+        lattice_a_end=["1.255mm", "1.255mm", "1.255mm"],
+        nummodes=2,
+        portname="FloquetPort1",
+        renorm=True,
+        deembed_dist=0
+    )
+    # Add the second port and boundaries as per the example
+
+
 
 def create_patch_pattern(hfss_app, params):
     """

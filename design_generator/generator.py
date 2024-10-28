@@ -67,6 +67,39 @@ class DesignGenerator:
             "pattern": random.choice(["patch", "slot", "array"])
         }
         
+    def initialize_parameters_and_setup(self, params):
+        """Assign parameters and create a setup for the design."""
+        # Assign all necessary parameters
+        self.hfss_app["cell_width"] = "2.5mm"
+        self.hfss_app["patch_outerWidth1"] = "2.2mm"
+        self.hfss_app["patch_outerWidth2"] = "1.5mm"
+        self.hfss_app["patch_innerWidth1"] = "1.8mm"
+        self.hfss_app["patch_innerWidth2"] = "1.1mm"
+        self.hfss_app["patch_gapLength"] = "0.3mm"
+        self.hfss_app["patch_gapWidth"] = "0.2mm"
+        self.hfss_app["substrate_height"] = "0.25mm"
+        self.hfss_app["wire_length"] = "2.5mm"
+        self.hfss_app["wire_width"] = "0.14mm"
+        self.hfss_app["rad_length"] = "2.51mm"
+        self.hfss_app["rad_width"] = "2.51mm"
+        self.hfss_app["rad_height"] = "2.51mm"
+        self.hfss_app["lower_frequency"] = "5GHz"
+        self.hfss_app["upper_frequency"] = "15GHz"
+        self.hfss_app["solution_frequency"] = "10GHz"
+        self.hfss_app["patch_thickness"] = "0.017mm"
+        self.hfss_app["wavelength"] = "29.97925mm"
+
+        # Assign Setup and Sweep
+        setup = self.hfss_app.create_setup("Setup1")
+        setup.props["Frequency"] = self.hfss_app["solution_frequency"]
+        setup["MaximumPasses"] = 21
+        self.hfss_app.create_linear_count_sweep(
+            setupname="Setup1", unit="GHz", freqstart=5, freqstop=15,
+            num_of_freq_points=501, sweepname="sweep1",
+            sweep_type="Interpolating", save_fields=False
+        )
+
+
 
     def create_and_save_design(self, params, index):
         try:
