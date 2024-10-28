@@ -42,6 +42,27 @@ class DesignGenerator:
             specified_version="2022.1",
             new_desktop_session=False
             )  # Create a new project
+        
+        # Assign parameters as in the example
+        self.hfss_app["cell_width"] = "2.5mm"
+        self.hfss_app["patch_outerWidth1"] = "2.2mm"
+        self.hfss_app["patch_outerWidth2"] = "1.5mm"
+        self.hfss_app["patch_innerWidth1"] = "1.8mm"
+        self.hfss_app["patch_innerWidth2"] = "1.1mm"
+        self.hfss_app["patch_gapLength"] = "0.3mm"
+        self.hfss_app["patch_gapWidth"] = "0.2mm"
+        self.hfss_app["substrate_height"] = "0.25mm"
+        self.hfss_app["wire_length"] = "2.5mm"
+        self.hfss_app["wire_width"] = "0.14mm"
+        self.hfss_app["rad_length"] = "2.51mm"
+        self.hfss_app["rad_width"] = "2.51mm"
+        self.hfss_app["rad_height"] = "2.51mm"
+        self.hfss_app["lower_frequency"] = "5GHz"
+        self.hfss_app["upper_frequency"] = "15GHz"
+        self.hfss_app["solution_frequency"] = "10GHz"
+        self.hfss_app["patch_thickness"] = "0.017mm"
+        self.hfss_app["wavelength"] = "29.97925mm"
+
 
 
     def generate_designs(self, count=10):
@@ -149,20 +170,6 @@ class DesignGenerator:
         try:
             if not self.hfss_app:
                 raise RuntimeError("HFSS application is not initialized.")
-
-            for key, value in params.items():
-                try:
-                    # Convert parameters with units to their numerical values before assigning
-                    if isinstance(value, str) and value.endswith(('mm', 'GHz')):
-                        numeric_value = float(value[:-2])
-                        self.hfss_app[key] = numeric_value
-                    elif isinstance(value, (float, int)):
-                        self.hfss_app[key] = value
-                    else:
-                        raise ValueError(f"Invalid type or unit for parameter {key}: {value}")
-                except Exception as e:
-                    logging.error(f"Failed to set HFSS parameter {key} with value {value}: {e}")
-
 
                 
             project_name = f"metasurface_design_{index}"

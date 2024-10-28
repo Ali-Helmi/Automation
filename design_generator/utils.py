@@ -130,14 +130,7 @@ def generate_geometry(hfss_app, params):
 
 
 def assign_ports_and_boundaries(hfss_app, params):
-    """
-    Assign ports and boundaries in HFSS based on design parameters.
-
-    Args:
-        hfss_app (Hfss): The HFSS application instance.
-        params (dict): Parameters including ports and boundary conditions.
-    """
-    # Assign Floquet ports based on the example script
+    # Assign Floquet ports
     hfss_app.create_floquet_port(
         face=308,
         lattice_origin=["-1.255mm", "1.255mm", "1.255mm"],
@@ -208,6 +201,7 @@ def assign_ports_and_boundaries(hfss_app, params):
         coord_name='Global',
         secondary_name="Secondary2"
     )
+
 
 
 
