@@ -4,7 +4,7 @@
 import os
 import json
 import random
-from pyaedt import Hfss
+from pyaedt import Hfss, Desktop
 from design_generator.utils import generate_geometry, save_design_file
 import logging
 
@@ -18,6 +18,7 @@ class DesignGenerator:
         self.output_dir = output_dir
         self.randomize = randomize
         self.designs = []
+        self.desktop = None
         self.hfss_app = None
 
     def load_template(self):
@@ -31,9 +32,14 @@ class DesignGenerator:
     
     def initialize_hfss(self):
         """Initialize the HFSS application and set up a new project."""
+        if not self.desktop:
+            self.desktop = Desktop("2022.1", non_graphical=False)
+        
         if not self.hfss_app:
-            self.hfss_app = Hfss()  # Create the HFSS instance
-            self.hfss_app.new_project("Generated_Designs")  # Create a new project
+            self.hfss_app = Hfss(specified_version="2022.1", new_desktop_session=False)  # Create the HFSS instance
+            project_name = "Generated_Designs"
+            self.hfss_app.new_project(project_name)
+            self.hfss_app.insert_design("HFSS_Design")  # Create a new project
 
 
     def generate_designs(self, count=10):
@@ -65,7 +71,7 @@ class DesignGenerator:
 
 
             project_name = f"metasurface_design_{index}"
-            self.hfss_app.new_design(project_name)
+            self.hfss_app.insert_design(project_name)
 
             # Generate geometry using utility function
             generate_geometry(self.hfss_app, params)
@@ -83,8 +89,9 @@ class DesignGenerator:
             logging.error(f"An unexpected error occurred: {e}")
         finally:
             if self.hfss_app:
-                self.hfss_app.close_project()
+                # Avoid closing the project prematurely; consider keeping it open if running multiple designs
+                logging.info("Design creation complete for index: {}".format(index))
 
 if __name__ == "__main__":
-    generator = DesignGenerator(template_path="templates/template_1.json", randomize=True)
+    generator = DesignGenerator(template_path="templates/template_1.json", randomize=False)
     generator.generate_designs(count=50)
