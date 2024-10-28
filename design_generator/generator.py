@@ -82,7 +82,7 @@ class DesignGenerator:
             
             # Save design file
             file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
-            #save_design_file(self.hfss_app, file_path)
+            save_design_file(self.hfss_app, file_path)
 
             #self.hfss_app.save_project(file_path)
             self.designs.append(file_path)
