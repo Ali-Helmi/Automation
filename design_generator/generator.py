@@ -18,7 +18,6 @@ class DesignGenerator:
         self.output_dir = output_dir
         self.randomize = randomize
         self.designs = []
-        self.hfss_app = Hfss()
 
     def load_template(self):
         try:
@@ -50,25 +49,27 @@ class DesignGenerator:
 
     def create_and_save_design(self, params, index):
         try:
-            project_name = f"metasurface_design_{index}"
-            self.hfss_app.new_design(project_name)
+            with Hfss() as hfss_app:
+                project_name = f"metasurface_design_{index}"
+                self.hfss_app.new_design(project_name)
 
-            # Generate geometry using utility function
-            generate_geometry(self.hfss_app, params)
-            
-            # Save design file
-            file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
-            save_design_file(self.hfss_app, file_path)
+                # Generate geometry using utility function
+                generate_geometry(self.hfss_app, params)
+                
+                # Save design file
+                file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
+                save_design_file(self.hfss_app, file_path)
 
-            self.hfss_app.save_project()
-            self.designs.append(file_path)
-            logging.info(f"Design {index} saved to {file_path}")
+                self.hfss_app.save_project()
+                self.designs.append(file_path)
+                logging.info(f"Design {index} saved to {file_path}")
         except FileNotFoundError as e:
             logging.error(f"File not found: {e}")
         except Exception as e:
             logging.error(f"An unexpected error occurred: {e}")
         finally:
-            self.hfss_app.close_project()
+            if self.hfss_app:
+                self.hfss_app.close_project()
 
 if __name__ == "__main__":
     generator = DesignGenerator(template_path="templates/template_1.json", randomize=True)

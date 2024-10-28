@@ -37,7 +37,7 @@ def parse_args():
     args = parser.parse_args()
 
     # Validate input
-    if not args.target_behavior.isalnum():
+    if not args.target_behavior.replace('_', '').isalnum():
         raise ValueError("Target behavior must be an alphanumeric string.")
     
     return args

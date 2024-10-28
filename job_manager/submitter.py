@@ -79,6 +79,9 @@ def create_submission_script(config, job_name, design_file):
         return job_script
     except KeyError as e:
         print(f"Configuration missing key: {e}")
+    except FileNotFoundError:
+        print(f"Job template {template_file} not found.")
+        return None
 
 def submit_job(script_path):
     """
