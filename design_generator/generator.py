@@ -37,8 +37,7 @@ class DesignGenerator:
         
         if not self.hfss_app:
             self.hfss_app = Hfss(specified_version="2022.1", new_desktop_session=False)  # Create the HFSS instance
-            project_name = "Generated_Designs"
-            self.hfss_app.new_project(project_name)
+            self.hfss_app.create_project("Generated_Designs")
             self.hfss_app.insert_design("HFSS_Design")  # Create a new project
 
 
@@ -78,9 +77,9 @@ class DesignGenerator:
             
             # Save design file
             file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
-            save_design_file(self.hfss_app, file_path)
+            #save_design_file(self.hfss_app, file_path)
 
-            self.hfss_app.save_project()
+            self.hfss_app.save_project(file_path)
             self.designs.append(file_path)
             logging.info(f"Design {index} saved to {file_path}")
         except FileNotFoundError as e:
