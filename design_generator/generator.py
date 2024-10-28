@@ -150,11 +150,20 @@ class DesignGenerator:
             if not self.hfss_app:
                 raise RuntimeError("HFSS application is not initialized.")
 
-
             for key, value in params.items():
-                if isinstance(value, (str, float, int)):
-                    self.hfss_app[key] = value
-                
+                try:
+                    # Convert parameters with units to their numerical values before assigning
+                    if isinstance(value, str) and value.endswith(('mm', 'GHz')):
+                        numeric_value = float(value[:-2])
+                        self.hfss_app[key] = numeric_value
+                    elif isinstance(value, (float, int)):
+                        self.hfss_app[key] = value
+                    else:
+                        raise ValueError(f"Invalid type or unit for parameter {key}: {value}")
+                except Exception as e:
+                    logging.error(f"Failed to set HFSS parameter {key} with value {value}: {e}")
+
+
                 
             project_name = f"metasurface_design_{index}"
             self.hfss_app.insert_design(project_name)
