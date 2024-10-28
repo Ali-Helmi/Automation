@@ -7,38 +7,41 @@ from pyaedt import Hfss
 def generate_geometry(hfss_app, params):
     # Create substrate
     substrate = hfss_app.modeler.create_box(
-        position=["-params['dimensions']['width']/2", "-params['dimensions']['height']/2", "-params['dimensions']['thickness']/2"], 
-        dimensions_list=["params['dimensions']['width']", "params['dimensions']['height']", "params['dimensions']['thickness']"],
-        name="substrate", 
+        position=["-cell_width/2", "-cell_width/2", "-substrate_height/2"],
+        dimensions_list=["cell_width", "cell_width", "substrate_height"],
+        name="substrate",
         matname=params["material"]["substrate"]["type"]
     )
 
-    # Create patches and subtract gaps
+    # Create Outer Patch 1
     outer_patch1 = hfss_app.modeler.create_rectangle(
         csPlane=hfss_app.PLANE.XY,
-        position=["-params['dimensions']['width']/2", "-params['dimensions']['width']/2", "params['dimensions']['thickness']/2"],
-        dimension_list=["params['dimensions']['width'] * 0.8", "params['dimensions']['width'] * 0.8"],
+        position=["-patch_outerWidth1/2", "-patch_outerWidth1/2", "substrate_height/2"],
+        dimension_list=["patch_outerWidth1", "patch_outerWidth1"],
         name="outer_patch1",
-        matname=params["material"]["metal_layer"]
+        matname="copper"
     )
-    hfss_app.modeler.thicken_sheet(outer_patch1.name, thickness="params['dimensions']['thickness']")
-    
-    # Add the rest of the patches and gaps similarly
-    # Perform subtraction operations for gap creation
-    hfss_app.modeler.subtract(["outer_patch1"], ["gap_patch"], keep_originals=False)
+    hfss_app.modeler.thicken_sheet(outer_patch1.name, thickness="patch_thickness")
 
-    # Add Floquet port assignments and primary/secondary assignments as in the example
+    # Create other patches, gaps, and wire as in the example...
+    
+    # Subtraction Operations
+    hfss_app.modeler.subtract(["outer_patch1"], ["inner_patch1", "patch_outerGap"], keep_originals=False)
+    hfss_app.modeler.subtract(["outer_patch2"], ["inner_patch2", "patch_innerGap"], keep_originals=False)
+
+    # Floquet Ports and Boundaries
     hfss_app.create_floquet_port(
         face=308,
-        lattice_origin=["0", "0", "0"],
-        lattice_b_end=["0", "-params['dimensions']['width']", "0"],
-        lattice_a_end=["params['dimensions']['width']", "0", "0"],
+        lattice_origin=["-1.255mm", "1.255mm", "1.255mm"],
+        lattice_b_end=["-1.255mm", "-1.255mm", "1.255mm"],
+        lattice_a_end=["1.255mm", "1.255mm", "1.255mm"],
         nummodes=2,
         portname="FloquetPort1",
         renorm=True,
         deembed_dist=0
     )
-    # Similarly, add other ports and boundary conditions
+    # Add the second port and boundaries as per the example
+
 
 
 def create_patch_pattern(hfss_app, params):
