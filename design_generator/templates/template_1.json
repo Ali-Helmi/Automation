@@ -1,29 +1,22 @@
 {
-    "frequency": 5e9,
-    "dimensions": {
-      "width": 0.03,
-      "height": 0.03,
-      "thickness": 0.0016
-    },
-    "material": {
-      "substrate": {
-        "type": "FR4",
-        "relative_permittivity": 4.4,
-        "loss_tangent": 0.02
-      },
-      "metal_layer": "Copper"
-    },
-    "pattern": {
-      "type": "patch",
-      "geometry": "square",
-      "spacing": 0.002,
-      "alignment": "center"
-    },
-    "boundary_conditions": "Floquet Periodic",
-    "port_count": 2,
-    "excitation": {
-      "type": "Plane Wave",
-      "angle_of_incidence": 0
-    }
-  }
-  
+  "cell_width": "2.5mm",
+  "patch_outerWidth1": "2.2mm",
+  "patch_outerWidth2": "1.5mm",
+  "patch_innerWidth1": "1.8mm",
+  "patch_innerWidth2": "1.1mm",
+  "patch_gapLength": "0.3mm",
+  "patch_gapWidth": "0.2mm",
+  "substrate_height": "0.25mm",
+  "wire_length": "2.5mm",
+  "wire_width": "0.14mm",
+  "rad_length": "2.51mm",
+  "rad_width": "2.51mm",
+  "rad_height": "2.51mm",
+  "lower_frequency": "5GHz",
+  "upper_frequency": "15GHz",
+  "solution_frequency": "10GHz",
+  "patch_thickness": "0.017mm",
+  "wavelength": "29.97925mm",
+  "substrate_material": "FR4_epoxy",
+  "radiation_material": "vacuum"
+}

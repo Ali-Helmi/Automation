@@ -28,7 +28,10 @@ class DesignGenerator:
             )
 
     def load_design_template(self):
-        return load_template(self.template_path)
+        template = load_template(self.template_path)
+        logging.info(f"Loaded design parameters: {template}")
+        return template
+
 
     def create_and_save_design(self, design_params):
         try:
