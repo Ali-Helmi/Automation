@@ -1,80 +1,55 @@
-# generator.py
-
-import os
-import json
-import random
-from pyaedt import Hfss, Desktop
-from design_generator.utils import generate_geometry, save_design_file, calculate_deembed_distance, initialize_hfss_setup
+# design_generator/generator.py
 import logging
+from pyaedt import Hfss, Desktop
+from design_generator.utils import (
+    load_template, generate_geometry, initialize_parameters_and_setup,
+    assign_ports_and_boundaries, calculate_deembed_distance, save_design_file
+)
 
 class DesignGenerator:
-    def __init__(self, template_path, output_dir="./designs", randomize=False):
-        # Configure logging
+    def __init__(self, template_path, output_dir="./designs"):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        self.random_seed = 42
-        random.seed(self.random_seed)
         self.template_path = template_path
         self.output_dir = output_dir
-        self.randomize = randomize
         self.designs = []
-        self.desktop, self.hfss_app = None, None
-
-    def load_template(self):
-        try:
-            with open(self.template_path, 'r') as file:
-                template = json.load(file)
-            return template
-        except FileNotFoundError:
-            logging.error(f"Template file {self.template_path} not found.")
-            return {}
+        self.desktop = None
+        self.hfss_app = None
 
     def initialize_hfss(self):
-        """Initialize HFSS application and create a project."""
-        self.desktop, self.hfss_app = initialize_hfss_setup()
+        """Initialize the HFSS application and set up a new project."""
+        if not self.desktop:
+            self.desktop = Desktop("2022.1", non_graphical=False)
+        if not self.hfss_app:
+            self.hfss_app = Hfss(
+                projectname="Generated_Designs_Project",
+                designname="Generated_Design",
+                specified_version="2022.1",
+                new_desktop_session=False
+            )
 
-    def generate_designs(self, count=10):
-        # Ensure HFSS is initialized before creating designs
-        self.initialize_hfss()
-        os.makedirs(self.output_dir, exist_ok=True)
-        
-        for i in range(count):
-            design_params = self.create_random_design() if self.randomize else self.load_template()
-            self.create_and_save_design(design_params, i)
+    def load_design_template(self):
+        return load_template(self.template_path)
 
-        self.cleanup_hfss()
-
-    def create_random_design(self):
-        """Generate randomized design parameters."""
-        return {
-            "frequency": random.uniform(1e9, 10e9),
-            "dimensions": {
-                "width": random.uniform(0.01, 0.05),
-                "height": random.uniform(0.01, 0.05)
-            },
-            "material": random.choice(["FR4", "Rogers", "Copper"]),
-            "pattern": random.choice(["patch", "slot", "array"])
-        }
-
-    def create_and_save_design(self, params, index):
+    def create_and_save_design(self, design_params):
         try:
-            project_name = f"metasurface_design_{index}"
-            self.hfss_app.insert_design(project_name)
+            # Initialize geometry and parameters from the template
+            generate_geometry(self.hfss_app, design_params)
+            initialize_parameters_and_setup(self.hfss_app, design_params)
 
-            # Generate geometry and assign parameters
-            generate_geometry(self.hfss_app, params)
-            deembed_distance = calculate_deembed_distance(params)
-            initialize_hfss_setup(self.hfss_app, params, deembed_distance)
+            # Calculate and assign deembed distance
+            deembed_distance = calculate_deembed_distance(design_params)
+            assign_ports_and_boundaries(self.hfss_app, deembed_distance)
 
-            # Save design file
-            file_path = os.path.join(self.output_dir, f"{project_name}.aedt")
-            save_design_file(self.hfss_app, file_path)
-            self.designs.append(file_path)
-            logging.info(f"Design {index} saved to {file_path}")
+            # Save the design project
+            save_design_file(self.hfss_app, self.output_dir)
+
+            logging.info("Design saved successfully.")
         except Exception as e:
-            logging.error(f"Error creating design {index}: {e}")
+            logging.error(f"An error occurred during design creation: {e}")
 
     def cleanup_hfss(self):
-        """Clean up HFSS resources."""
+        """Prevent HFSS from closing immediately; waits for manual input."""
+        input("Press Enter to close the ANSYS HFSS instance...")
         if self.hfss_app:
             logging.info("Closing HFSS project.")
             self.hfss_app.close_project()
@@ -83,5 +58,8 @@ class DesignGenerator:
             self.desktop.close_desktop()
 
 if __name__ == "__main__":
-    generator = DesignGenerator(template_path="templates/template_1.json", randomize=False)
-    generator.generate_designs(count=1)
+    generator = DesignGenerator(template_path="templates/template_1.json")
+    generator.initialize_hfss()
+    design_params = generator.load_design_template()
+    generator.create_and_save_design(design_params)
+    generator.cleanup_hfss()
