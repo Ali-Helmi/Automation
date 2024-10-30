@@ -1,35 +1,32 @@
-# design_generator/utils.py
-# Purpose: Utility functions for geometry creation, file handling, and design manipulation
+# utils.py
 
 import os
-from pyaedt import Hfss
+from pyaedt import Hfss, Desktop
+
+def initialize_hfss_setup():
+    """Set up the HFSS environment."""
+    desktop = Desktop("2022.1", non_graphical=False)
+    hfss_app = Hfss(projectname="Generated_Designs_Project", designname="Generated_Design", specified_version="2022.1")
+    return desktop, hfss_app
+
+def calculate_deembed_distance(params):
+    """Calculate the de-embedding distance based on geometry."""
+    substrate_height = float(params["substrate_height"].replace("mm", ""))
+    rad_height = float(params["rad_height"].replace("mm", ""))
+    deembed_distance = rad_height - (substrate_height / 2)  # Placeholder for actual calculation logic
+    return f"{deembed_distance}mm"
 
 def generate_geometry(hfss_app, params):
-    # Create substrate
-    substrate = hfss_app.modeler.create_box(
+    """Create design geometry in HFSS."""
+    hfss_app.modeler.create_box(
         position=["-cell_width/2", "-cell_width/2", "-substrate_height/2"],
         dimensions_list=["cell_width", "cell_width", "substrate_height"],
         name="substrate",
-        matname=params["material"]["substrate"]["type"]
+        matname=params["material"]
     )
 
-    # Create Outer Patch 1
-    outer_patch1 = hfss_app.modeler.create_rectangle(
-        csPlane=hfss_app.PLANE.XY,
-        position=["-patch_outerWidth1/2", "-patch_outerWidth1/2", "substrate_height/2"],
-        dimension_list=["patch_outerWidth1", "patch_outerWidth1"],
-        name="outer_patch1",
-        matname="copper"
-    )
-    hfss_app.modeler.thicken_sheet(outer_patch1.name, thickness="patch_thickness")
-
-    # Create other patches, gaps, and wire as in the example...
-    
-    # Subtraction Operations
-    hfss_app.modeler.subtract(["outer_patch1"], ["inner_patch1", "patch_outerGap"], keep_originals=False)
-    hfss_app.modeler.subtract(["outer_patch2"], ["inner_patch2", "patch_innerGap"], keep_originals=False)
-
-    # Floquet Ports and Boundaries
+def assign_ports(hfss_app, deembed_distance):
+    """Assign ports with calculated de-embedding distance."""
     hfss_app.create_floquet_port(
         face=308,
         lattice_origin=["-1.255mm", "1.255mm", "1.255mm"],
@@ -38,54 +35,29 @@ def generate_geometry(hfss_app, params):
         nummodes=2,
         portname="FloquetPort1",
         renorm=True,
-        deembed_dist=0
+        deembed_dist=deembed_distance,
     )
-    # Add the second port and boundaries as per the example
 
+    hfss_app.create_floquet_port(
+        face=309,
+        lattice_origin=["-1.255mm", "1.255mm", "-1.255mm"],
+        lattice_b_end=["-1.255mm", "-1.255mm", "-1.255mm"],
+        lattice_a_end=["1.255mm", "1.255mm", "-1.255mm"],
+        nummodes=2,
+        portname="FloquetPort2",
+        renorm=True,
+        deembed_dist="0mm",
+    )
 
-
-def create_patch_pattern(hfss_app, params):
-    """
-    Generates a patch pattern on the design.
-    
-    Args:
-        hfss_app (Hfss): The HFSS application instance.
-        params (dict): Parameters including pattern details.
-    """
-    width = params["dimensions"]["width"] * 0.8
-    height = params["dimensions"]["height"] * 0.8
-    hfss_app.modeler.create_rectangle([0, 0, params["dimensions"]["thickness"]], 
-                                      [width, height], 
-                                      name="patch", material=params["material"]["metal_layer"])
-
-def create_slot_pattern(hfss_app, params):
-    """
-    Generates a slot pattern on the design.
-    
-    Args:
-        hfss_app (Hfss): The HFSS application instance.
-        params (dict): Parameters including pattern details.
-    """
-    slot_width = params["dimensions"]["width"] * 0.4
-    slot_height = params["dimensions"]["height"] * 0.4
-    hfss_app.modeler.create_rectangle([params["dimensions"]["width"]/2 - slot_width/2, 
-                                       params["dimensions"]["height"]/2 - slot_height/2, 
-                                       params["dimensions"]["thickness"]],
-                                      [slot_width, slot_height], 
-                                      name="slot", material="vacuum")
+def assign_boundaries(hfss_app):
+    """Assign boundary conditions."""
+    hfss_app.assign_primary(face=313, u_start=["1.255mm", "1.255mm", "-1.255mm"], u_end=["1.255mm", "1.255mm", "1.255mm"])
+    hfss_app.assign_secondary(face=311, primary_name="Primary1", u_start=["-1.255mm", "1.255mm", "-1.255mm"], u_end=["-1.255mm", "1.255mm", "1.255mm"])
 
 def save_design_file(hfss_app, file_path):
-    """
-    Saves the HFSS design file.
-    
-    Args:
-        hfss_app (Hfss): The HFSS application instance.
-        file_path (str): Path to save the file.
-    """
+    """Save the design project to the specified file path."""
     try:
-        if not os.path.exists(os.path.dirname(file_path)):
-            os.makedirs(os.path.dirname(file_path))
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         hfss_app.save_project(file_path)
-        print(f"Project saved at {file_path}")
     except OSError as e:
         print(f"Error saving file {file_path}: {e}")
