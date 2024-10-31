@@ -1,4 +1,6 @@
 {
+  "substrate_material": "FR4_epoxy",
+  "radiation_material": "vacuum",
   "cell_width": "2.5mm",
   "patch_outerWidth1": "2.2mm",
   "patch_outerWidth2": "1.5mm",
@@ -15,8 +17,5 @@
   "lower_frequency": "5GHz",
   "upper_frequency": "15GHz",
   "solution_frequency": "10GHz",
-  "patch_thickness": "0.017mm",
-  "wavelength": "29.97925mm",
-  "substrate_material": "FR4_epoxy",
-  "radiation_material": "vacuum"
+  "patch_thickness": "0.017mm"
 }
