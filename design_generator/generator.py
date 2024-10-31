@@ -1,4 +1,4 @@
-# design_generator/generator.py
+# generator.py
 import logging
 from pyaedt import Hfss, Desktop
 from design_generator.utils import (
@@ -17,33 +17,41 @@ class DesignGenerator:
 
     def initialize_hfss(self):
         """Initialize the HFSS application and set up a new project."""
-        if not self.desktop:
-            self.desktop = Desktop("2022.1", non_graphical=False)
-        if not self.hfss_app:
-            self.hfss_app = Hfss(
-                projectname="Generated_Designs_Project",
-                designname="Generated_Design",
-                specified_version="2022.1",
-                new_desktop_session=False
-            )
+        logging.info("Initializing HFSS...")
+        self.desktop = Desktop("2022.1", non_graphical=False)
+        self.hfss_app = Hfss(
+            projectname="Generated_Designs_Project",
+            designname="Generated_Design",
+            specified_version="2022.1",
+            new_desktop_session=False
+        )
+        logging.info("HFSS initialized successfully.")
 
     def load_design_template(self):
         template = load_template(self.template_path)
         logging.info(f"Loaded design parameters: {template}")
         return template
 
-
     def create_and_save_design(self, design_params):
         try:
-            # Initialize geometry and parameters from the template
+            # Generate geometry and check each step
+            logging.info("Generating geometry...")
             generate_geometry(self.hfss_app, design_params)
+            
+            # Set up parameters and frequency sweep
+            logging.info("Setting parameters and creating setup...")
             initialize_parameters_and_setup(self.hfss_app, design_params)
-
-            # Calculate and assign deembed distance
+            
+            # Calculate deembed distance
+            logging.info("Calculating deembed distance...")
             deembed_distance = calculate_deembed_distance(design_params)
+            
+            # Assign ports and boundaries
+            logging.info("Assigning ports and boundaries...")
             assign_ports_and_boundaries(self.hfss_app, deembed_distance)
 
             # Save the design project
+            logging.info("Saving the design project...")
             save_design_file(self.hfss_app, self.output_dir)
 
             logging.info("Design saved successfully.")
