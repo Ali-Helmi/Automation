@@ -8,8 +8,8 @@ def load_template(template_path):
         with open(template_path, 'r') as file:
             return json.load(file)
     except FileNotFoundError:
-        print(f"Error: Template file {template_path} not found.")
-        return {}
+        logging.error(f"Template file {template_path} not found.")
+        return None  # Return None if file is not found
 
 def generate_geometry(hfss_app, params):
     # Create substrate and patches with exact positions and dimensions

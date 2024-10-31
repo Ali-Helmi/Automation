@@ -1,4 +1,5 @@
 # generator.py
+import argparse
 import logging
 from pyaedt import Hfss, Desktop
 from design_generator.utils import (
@@ -29,31 +30,23 @@ class DesignGenerator:
 
     def load_design_template(self):
         template = load_template(self.template_path)
+        if template is None:
+            raise FileNotFoundError(f"Template file {self.template_path} could not be loaded.")
         logging.info(f"Loaded design parameters: {template}")
         return template
 
     def create_and_save_design(self, design_params):
         try:
-            # Generate geometry and check each step
             logging.info("Generating geometry...")
             generate_geometry(self.hfss_app, design_params)
-            
-            # Set up parameters and frequency sweep
             logging.info("Setting parameters and creating setup...")
             initialize_parameters_and_setup(self.hfss_app, design_params)
-            
-            # Calculate deembed distance
             logging.info("Calculating deembed distance...")
             deembed_distance = calculate_deembed_distance(design_params)
-            
-            # Assign ports and boundaries
             logging.info("Assigning ports and boundaries...")
             assign_ports_and_boundaries(self.hfss_app, deembed_distance)
-
-            # Save the design project
             logging.info("Saving the design project...")
             save_design_file(self.hfss_app, self.output_dir)
-
             logging.info("Design saved successfully.")
         except Exception as e:
             logging.error(f"An error occurred during design creation: {e}")
@@ -69,7 +62,12 @@ class DesignGenerator:
             self.desktop.close_desktop()
 
 if __name__ == "__main__":
-    generator = DesignGenerator(template_path="templates/template_1.json")
+    parser = argparse.ArgumentParser(description="Generate HFSS designs with specified template.")
+    parser.add_argument("--template", type=str, default="templates/template_1.json",
+                        help="Path to the JSON template file for design parameters.")
+    args = parser.parse_args()
+
+    generator = DesignGenerator(template_path=args.template)
     generator.initialize_hfss()
     design_params = generator.load_design_template()
     generator.create_and_save_design(design_params)
