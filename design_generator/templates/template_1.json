@@ -1,21 +1,23 @@
 {
-  "substrate_material": "FR4_epoxy",
-  "radiation_material": "vacuum",
-  "cell_width": "2.5mm",
-  "patch_outerWidth1": "2.2mm",
-  "patch_outerWidth2": "1.5mm",
-  "patch_innerWidth1": "1.8mm",
-  "patch_innerWidth2": "1.1mm",
-  "patch_gapLength": "0.3mm",
-  "patch_gapWidth": "0.2mm",
-  "substrate_height": "0.25mm",
-  "wire_length": "2.5mm",
-  "wire_width": "0.14mm",
-  "rad_length": "2.51mm",
-  "rad_width": "2.51mm",
-  "rad_height": "2.51mm",
-  "lower_frequency": "5GHz",
-  "upper_frequency": "15GHz",
-  "solution_frequency": "10GHz",
-  "patch_thickness": "0.017mm"
+  "geometry": {
+      "cell_width": "2.5mm",
+      "patch_outerWidth1": "2.2mm",
+      "patch_outerWidth2": "1.5mm",
+      "patch_innerWidth1": "1.8mm",
+      "patch_innerWidth2": "1.1mm",
+      "patch_gapLength": "0.3mm",
+      "patch_gapWidth": "0.2mm",
+      "substrate_height": "0.25mm",
+      "wire_length": "2.5mm",
+      "wire_width": "0.14mm",
+      "rad_length": "2.51mm",
+      "rad_width": "2.51mm",
+      "rad_height": "2.51mm",
+      "patch_thickness": "0.017mm"
+  },
+  "analysis": {
+      "frequency_start": "5GHz",
+      "frequency_stop": "15GHz",
+      "solution_frequency": "10GHz"
+  }
 }
