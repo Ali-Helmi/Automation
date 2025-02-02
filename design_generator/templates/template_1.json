@@ -1,23 +1,68 @@
 {
-  "geometry": {
-      "cell_width": "2.5mm",
-      "patch_outerWidth1": "2.2mm",
-      "patch_outerWidth2": "1.5mm",
-      "patch_innerWidth1": "1.8mm",
-      "patch_innerWidth2": "1.1mm",
-      "patch_gapLength": "0.3mm",
-      "patch_gapWidth": "0.2mm",
-      "substrate_height": "0.25mm",
-      "wire_length": "2.5mm",
-      "wire_width": "0.14mm",
-      "rad_length": "2.51mm",
-      "rad_width": "2.51mm",
-      "rad_height": "2.51mm",
-      "patch_thickness": "0.017mm"
-  },
-  "analysis": {
-      "frequency_start": "5GHz",
-      "frequency_stop": "15GHz",
-      "solution_frequency": "10GHz"
-  }
+    "geometry": {
+        "cell_width": "2.5mm",
+        "substrate_height": "0.25mm",
+        "rad_length": "2.51mm",
+        "rad_width": "2.51mm",
+        "rad_height": "2.51mm",
+        "patch_thickness": "0.017mm"
+    },
+    "shapes": [
+        {
+            "type": "circle",
+            "dimensions": {
+                "position": [
+                    "-0.446mm",
+                    "-0.547mm",
+                    "0mm"
+                ],
+                "radius": "1.208mm"
+            },
+            "material": "copper",
+            "name": "circle_230"
+        },
+        {
+            "type": "rectangle",
+            "dimensions": {
+                "position": [
+                    "0.887mm",
+                    "0.667mm",
+                    "0mm"
+                ],
+                "size": [
+                    "0.261mm",
+                    "0.266mm"
+                ]
+            },
+            "material": "copper",
+            "name": "rectangle_377"
+        }
+    ],
+    "operations": [
+        {
+            "type": "subtract",
+            "blank": "circle_230",
+            "tool": "rectangle_377",
+            "new_name": "subtracted_115"
+        },
+        {
+            "type": "subtract",
+            "blank": "rectangle_377",
+            "tool": "circle_230",
+            "new_name": "subtracted_188"
+        },
+        {
+            "type": "merge",
+            "objects": [
+                "circle_230",
+                "rectangle_377"
+            ],
+            "new_name": "merged_661"
+        }
+    ],
+    "analysis": {
+        "frequency_start": "5GHz",
+        "frequency_stop": "15GHz",
+        "solution_frequency": "10GHz"
+    }
 }

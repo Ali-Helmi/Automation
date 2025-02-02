@@ -1,28 +1,63 @@
 {
-    "frequency": 7e9,
-    "dimensions": {
-        "width": 0.025,
-        "height": 0.025,
-        "thickness": 0.002
+    "geometry": {
+        "cell_width": "2.5mm",
+        "substrate_height": "0.25mm",
+        "rad_length": "2.51mm",
+        "rad_width": "2.51mm",
+        "rad_height": "2.51mm",
+        "patch_thickness": "0.017mm"
     },
-    "material": {
-        "substrate": {
-            "type": "Rogers",
-            "relative_permittivity": 3.5,
-            "loss_tangent": 0.01
+    "shapes": [
+        {
+            "type": "rectangle",
+            "dimensions": {
+                "position": [
+                    "1.12mm",
+                    "-0.264mm",
+                    "0mm"
+                ],
+                "size": [
+                    "0.928mm",
+                    "1.122mm"
+                ]
+            },
+            "material": "copper",
+            "name": "rectangle_67"
         },
-        "metal_layer": "Aluminum"
-    },
-    "pattern": {
-        "type": "slot",
-        "geometry": "circular",
-        "spacing": 0.0015,
-        "alignment": "center"
-    },
-    "boundary_conditions": "Perfect E",
-    "port_count": 1,
-    "excitation": {
-        "type": "Waveguide",
-        "angle_of_incidence": 30
+        {
+            "type": "rectangle",
+            "dimensions": {
+                "position": [
+                    "1.14mm",
+                    "1.017mm",
+                    "0mm"
+                ],
+                "size": [
+                    "0.822mm",
+                    "0.86mm"
+                ]
+            },
+            "material": "copper",
+            "name": "rectangle_86"
+        }
+    ],
+    "operations": [
+        {
+            "type": "subtract",
+            "blank": "rectangle_86",
+            "tool": "rectangle_67",
+            "new_name": "subtracted_137"
+        },
+        {
+            "type": "subtract",
+            "blank": "rectangle_86",
+            "tool": "rectangle_67",
+            "new_name": "subtracted_359"
+        }
+    ],
+    "analysis": {
+        "frequency_start": "5GHz",
+        "frequency_stop": "15GHz",
+        "solution_frequency": "10GHz"
     }
 }

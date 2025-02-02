@@ -1,19 +1,108 @@
+# design_generator/utils.py
+
+import random
+
 def setup_materials(hfss, params):
     materials = params.get("materials", {})
     for name, properties in materials.items():
-        # First create the material
         if name not in hfss.materials.material_keys:
             material = hfss.materials.add_material(name)
             if "permittivity" in properties:
                 material.permittivity.value = properties["permittivity"]
             if "loss_tangent" in properties:
                 material.dielectric_loss_tangent.value = properties["loss_tangent"]
-            
-    # Ensure materials are available
     if "copper" not in hfss.materials.material_keys:
         hfss.materials["copper"]
 
+def draw_rectangle(hfss, position, dimensions, name, material):
+    rectangle = hfss.modeler.create_rectangle(
+        csPlane=hfss.PLANE.XY,
+        position=position,
+        dimension_list=dimensions,
+        name=name,
+        matname=material
+    )
+    hfss.modeler.thicken_sheet(rectangle.name, thickness="patch_thickness")
+    return rectangle
+
+def draw_circle(hfss, position, radius, name, material):
+    circle = hfss.modeler.create_circle(
+        cs_plane=hfss.PLANE.XY,  # Correct argument name
+        position=position,
+        radius=radius,
+        name=name,
+        matname=material
+    )
+    if not circle:
+        raise ValueError(f"Failed to create circle: {name}")
+    hfss.modeler.thicken_sheet(circle.name, thickness="patch_thickness")
+    return circle
+
 def create_geometry(hfss, params):
+    geometry_params = params.get("geometry", {})
+    shapes = params.get("shapes", [])
+    operations = params.get("operations", [])
+    created_objects = {}
+
+    substrate_material = geometry_params.get("substrate_material", "FR4_epoxy")
+    radiation_material = geometry_params.get("radiation_material", "vacuum")
+
+    for key, value in geometry_params.items():
+        if isinstance(value, str):
+            hfss[key] = value
+
+    substrate = hfss.modeler.create_box(
+        position=["-cell_width/2", "-cell_width/2", "-substrate_height/2"],
+        dimensions_list=["cell_width", "cell_width", "substrate_height"],
+        name="substrate",
+        matname=substrate_material
+    )
+
+    created_objects["substrate"] = substrate
+
+    for shape in shapes:
+        shape_type = shape["type"]
+        dimensions = shape["dimensions"]
+        material = shape.get("material", "copper")  # Ensure the material is copper
+        name = shape.get("name", shape_type)
+
+        if shape_type == "rectangle":
+            obj = draw_rectangle(hfss, dimensions["position"], dimensions["size"], name, material)
+        elif shape_type == "circle":
+            obj = draw_circle(hfss, dimensions["position"], dimensions["radius"], name, material)
+        else:
+            raise ValueError(f"Unsupported shape type: {shape_type}")
+
+        created_objects[name] = obj
+
+    rad_box = hfss.modeler.create_box(
+        position=["-rad_length/2", "-rad_width/2", "-rad_height/2"],
+        dimensions_list=["rad_length", "rad_width", "rad_height"],
+        name="RadBox",
+        matname=radiation_material
+    )
+
+    created_objects["rad_box"] = rad_box
+
+    for operation in operations:
+        op_type = operation["type"]
+        new_name = operation["new_name"]
+
+        if op_type == "merge":
+            objects = operation["objects"]
+            merged_object = merge_objects(hfss, objects, new_name)
+            created_objects[new_name] = merged_object
+        elif op_type == "subtract":
+            blank_name = operation["blank"]
+            tool_name = operation["tool"]
+            subtracted_object = subtract_objects(hfss, blank_name, tool_name, new_name)
+            created_objects[new_name] = subtracted_object
+        else:
+            raise ValueError(f"Unsupported operation type: {op_type}")
+
+    return created_objects
+
+def create_patch(hfss, params):
     geometry_params = params.get("geometry", {})
     
     # Get material names as strings
@@ -161,3 +250,21 @@ def create_analysis_setup(hfss, params):
         sweep_type="Interpolating",
         save_fields=False
     )
+
+def merge_objects(hfss, object_names, new_name):
+    """Merge multiple objects into a single object."""
+    success = hfss.modeler.unite(object_names)
+    if not success:
+        raise ValueError(f"Failed to merge objects: {object_names}")
+    merged_object = hfss.modeler.get_object_from_name(object_names[0])
+    merged_object.name = new_name
+    return merged_object
+
+def subtract_objects(hfss, blank_name, tool_name, new_name):
+    """Subtract a tool object from a blank object."""
+    success = hfss.modeler.subtract([blank_name], [tool_name])
+    if not success:
+        raise ValueError(f"Failed to subtract object: {tool_name} from {blank_name}")
+    subtracted_object = hfss.modeler.get_object_from_name(blank_name)
+    subtracted_object.name = new_name
+    return subtracted_object

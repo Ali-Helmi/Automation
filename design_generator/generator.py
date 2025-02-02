@@ -1,52 +1,47 @@
-#design_generator/generator.py
+# design_generator/generator.py
+
 import json
 import sys
 import pyaedt
 from design_generator.utils import setup_materials, create_geometry, assign_boundaries, create_analysis_setup, assign_ports
+import logging
 
-def main(template_path):
-    with open(template_path, 'r') as file:
-        params = json.load(file)
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+pyaedt_logger = logging.getLogger('pyaedt')
+pyaedt_logger.setLevel(logging.INFO)  # Set pyaedt logging level to INFO
+
+# Mute specific debug messages
+export_logger = logging.getLogger('pyaedt.modeler.Primitives3D')
+export_logger.setLevel(logging.WARNING)  # Set to WARNING to mute debug messages
+
+def main(template_paths):
 
     hfss = pyaedt.Hfss(
         new_desktop_session=True,
-        projectname="Generated_Designs_Project",
-        designname="Generated_Design"
+        projectname="Generated_Designs_Project"
     )
 
-    # Set up global variables from JSON parameters
-    for key, value in params.items():
-        if isinstance(value, dict):
-            for sub_key, sub_value in value.items():
-                if isinstance(sub_value, (int, float, str)):  # Handle only directly assignable values
-                    hfss[sub_key] = sub_value
-        elif isinstance(value, (int, float, str)):
-            hfss[key] = value
+    for index, template_path in enumerate(template_paths):
+        with open(template_path, 'r') as file:
+            params = json.load(file)
 
-    # Material setup
-    setup_materials(hfss, params)
+        hfss.insert_design(f"Design_{index + 1}", "DrivenModal")
 
-    # Geometry creation
-    geometry_objects = create_geometry(hfss, params)
+        setup_materials(hfss, params)
+        geometry_objects = create_geometry(hfss, params)
+        assign_ports(hfss, geometry_objects, params)
+        assign_boundaries(hfss, geometry_objects)
+        create_analysis_setup(hfss, params)
 
-    # Port assignments
-    assign_ports(hfss, geometry_objects, params)
-
-    # Boundary assignments
-    assign_boundaries(hfss, geometry_objects)
-
-    # Analysis setup
-    create_analysis_setup(hfss, params)
-
-    # Solve
-    hfss.analyze_setup("Setup1", num_cores=4)
+        print(f"Design {index + 1} created.")
 
     input("Press Enter to close the ANSYS HFSS instance...")
     hfss.release_desktop()
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3 or sys.argv[1] != '--template':
-        print("Usage: python generator.py --template <template_path>")
+    if len(sys.argv) < 3 or sys.argv[1] != '--templates':
+        print("Usage: python generator.py --templates <template1_path> <template2_path> ...")
         sys.exit(1)
-    template_path = sys.argv[2]
-    main(template_path)
+    template_paths = sys.argv[2:]
+    main(template_paths)
